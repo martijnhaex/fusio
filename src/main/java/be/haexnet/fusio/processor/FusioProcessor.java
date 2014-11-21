@@ -4,6 +4,7 @@ import be.haexnet.fusio.annotation.FusioField;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 
@@ -12,7 +13,7 @@ public class FusioProcessor<O, T> {
     public T process(final O origin, final T target) {
         try {
             for (final Field originField : getAnnotatedFieldsOf(origin)) {
-                final String fieldName = originField.getName();
+                final String fieldName = getFieldName(originField);
                 final Object originValue = getFieldValue(origin, originField);
                 final Field targetField = getFieldByFieldName(target, fieldName);
 
@@ -30,6 +31,11 @@ public class FusioProcessor<O, T> {
                 .of(getDeclaredFieldsOf(entity))
                 .filter(isAnnotatedWith(FusioField.class))
                 .toList();
+    }
+
+    private String getFieldName(final Field field) {
+        final String overwrittenFieldName = field.getAnnotation(FusioField.class).name();
+        return StringUtils.isNotBlank(overwrittenFieldName) ? overwrittenFieldName : field.getName();
     }
 
     private Field[] getDeclaredFieldsOf(final O entity) {

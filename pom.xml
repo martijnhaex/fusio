@@ -11,6 +11,7 @@
     <properties>
         <com.google.guava.version>18.0</com.google.guava.version>
         <junit.version>4.11</junit.version>
+        <org.apache.commons.version>3.3.2</org.apache.commons.version>
         <org.easytesting.version>2.0M10</org.easytesting.version>
         <org.mockito.version>1.10.8</org.mockito.version>
     </properties>
@@ -20,6 +21,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${com.google.guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${org.apache.commons.version}</version>
         </dependency>
 
         <dependency>

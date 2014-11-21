@@ -1,4 +1,4 @@
-package be.haexnet.fusio.data;
+package be.haexnet.fusio.data.simple;
 
 import be.haexnet.fusio.annotation.FusioField;
 
