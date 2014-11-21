@@ -1,4 +1,4 @@
-package be.haexnet.fusio;
+package be.haexnet.fusio.processor;
 
 import be.haexnet.fusio.data.SimpleOriginData;
 import be.haexnet.fusio.data.SimpleTargetData;
@@ -18,7 +18,7 @@ public class FusioProcessorSimpleDataTest {
     @Test
     public void fusioReturnsTargetObject() throws Exception {
         final SimpleTargetData target = SimpleTargetData.empty();
-        assertThat(fusioProcessor.fusio(SimpleOriginData.empty(), target)).isSameAs(target);
+        assertThat(fusioProcessor.process(SimpleOriginData.empty(), target)).isSameAs(target);
     }
 
     @Test
@@ -26,7 +26,7 @@ public class FusioProcessorSimpleDataTest {
         final SimpleOriginData origin = SimpleOriginData.of("Martijn Haex", new BigDecimal("10378.79"), 24, "Java Consultant");
         final SimpleTargetData target = SimpleTargetData.empty();
 
-        final SimpleTargetData processedTarget = fusioProcessor.fusio(origin, target);
+        final SimpleTargetData processedTarget = fusioProcessor.process(origin, target);
         verifyProcessing(origin, processedTarget);
     }
 
@@ -35,7 +35,7 @@ public class FusioProcessorSimpleDataTest {
         final SimpleOriginData origin = SimpleOriginData.of("James Hetfield", new BigDecimal("100000000"), 51, "Musician");
         final SimpleTargetData target = SimpleTargetData.of("Sebastian Vettel", new BigDecimal("5000000"), 27, "Race pilot");
 
-        final SimpleTargetData processedTarget = fusioProcessor.fusio(origin, target);
+        final SimpleTargetData processedTarget = fusioProcessor.process(origin, target);
         verifyProcessing(origin, processedTarget);
 
     }

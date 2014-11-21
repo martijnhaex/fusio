@@ -1,4 +1,4 @@
-package be.haexnet.fusio;
+package be.haexnet.fusio.processor;
 
 import be.haexnet.fusio.annotation.FusioField;
 import com.google.common.base.Predicate;
@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 
 public class FusioProcessor<O, T> {
 
-    public T fusio(final O origin, final T target) {
+    public T process(final O origin, final T target) {
         try {
             for (final Field originField : getAnnotatedFieldsOf(origin)) {
                 final String fieldName = originField.getName();
