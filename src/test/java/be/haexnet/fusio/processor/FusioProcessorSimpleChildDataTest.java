@@ -1,53 +1,53 @@
 package be.haexnet.fusio.processor;
 
-import be.haexnet.fusio.data.simplechilddata.SimpleChildDataElement;
-import be.haexnet.fusio.data.simplechilddata.SimpleChildDataOrigin;
-import be.haexnet.fusio.data.simplechilddata.SimpleChildDataTarget;
+import be.haexnet.fusio.data.simplechildorigindata.OriginData;
+import be.haexnet.fusio.data.simplechildorigindata.OriginDataElement;
+import be.haexnet.fusio.data.simplechildorigindata.TargetData;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class FusioProcessorSimpleChildDataTest extends FusioProcessorTest<SimpleChildDataOrigin, SimpleChildDataTarget> {
+public class FusioProcessorSimpleChildDataTest extends FusioProcessorTest<OriginData, TargetData> {
 
     @Test
     public void fusioReturnsTargetObject() throws Exception {
-        final SimpleChildDataTarget target = SimpleChildDataTarget.empty();
-        assertThat(processor.process(SimpleChildDataOrigin.empty(), target)).isSameAs(target);
+        final TargetData target = TargetData.empty();
+        assertThat(processor.process(OriginData.empty(), target)).isSameAs(target);
     }
 
     @Test
     public void fusioReturnsTargetObjectWithFieldValuesOfOriginObject() throws Exception {
-        final SimpleChildDataOrigin origin = SimpleChildDataOrigin.of("Parent of the element", SimpleChildDataElement.of("Child of the element"));
-        final SimpleChildDataTarget target = SimpleChildDataTarget.empty();
+        final OriginData origin = OriginData.of("Parent of the element", OriginDataElement.of("Child of the element"));
+        final TargetData target = TargetData.empty();
 
-        final SimpleChildDataTarget processedTarget = processor.process(origin, target);
+        final TargetData processedTarget = processor.process(origin, target);
         validateProcessing(origin, processedTarget);
     }
 
     @Test
     public void fusioReturnsTargetObjectWithFieldValueOfOriginObjectExceptNullableElement() throws Exception {
-        final SimpleChildDataOrigin origin = SimpleChildDataOrigin.of("Parent of the element", null);
-        final SimpleChildDataTarget target = SimpleChildDataTarget.of("Parent", "Child");
+        final OriginData origin = OriginData.of("Parent of the element", null);
+        final TargetData target = TargetData.of("Parent", "Child");
 
-        final SimpleChildDataTarget processedTarget = processor.process(origin, target);
+        final TargetData processedTarget = processor.process(origin, target);
         validateProcessing(origin, processedTarget);
         assertThat(processedTarget.getChildElement()).isNotNull().isEqualTo(target.getChildElement());
     }
 
     @Test
     public void fusioReturnsTargetObjectWithOverwrittenFieldValuesOfOriginObject() throws Exception {
-        final SimpleChildDataOrigin origin = SimpleChildDataOrigin.of("Darth Vader", SimpleChildDataElement.of("Luke Skywalker"));
-        final SimpleChildDataTarget target = SimpleChildDataTarget.of("Kill Bill vol.1", "Kill BIll vol.2");
+        final OriginData origin = OriginData.of("Darth Vader", OriginDataElement.of("Luke Skywalker"));
+        final TargetData target = TargetData.of("Kill Bill vol.1", "Kill BIll vol.2");
 
-        final SimpleChildDataTarget processedTarget = processor.process(origin, target);
+        final TargetData processedTarget = processor.process(origin, target);
         validateProcessing(origin, processedTarget);
     }
 
     @Override
-    protected void validateProcessing(final SimpleChildDataOrigin origin, final SimpleChildDataTarget processedTarget) {
+    protected void validateProcessing(final OriginData origin, final TargetData processedTarget) {
         assertThat(processedTarget.getParentElement()).isNotNull().isEqualTo(origin.getParentElement());
 
-        final SimpleChildDataElement childElement = origin.getChildElement();
+        final OriginDataElement childElement = origin.getChildElement();
         if (childElement != null) {
             assertThat(processedTarget.getChildElement()).isNotNull().isEqualTo(childElement.getChildElement());
         }

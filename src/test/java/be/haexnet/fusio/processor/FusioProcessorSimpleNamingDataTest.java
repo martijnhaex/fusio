@@ -1,40 +1,40 @@
 package be.haexnet.fusio.processor;
 
-import be.haexnet.fusio.data.simplenaming.SimpleNamingOriginData;
-import be.haexnet.fusio.data.simplenaming.SimpleNamingTargetData;
+import be.haexnet.fusio.data.simplenaming.OriginData;
+import be.haexnet.fusio.data.simplenaming.TargetData;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class FusioProcessorSimpleNamingDataTest extends FusioProcessorTest<SimpleNamingOriginData, SimpleNamingTargetData> {
+public class FusioProcessorSimpleNamingDataTest extends FusioProcessorTest<OriginData, TargetData> {
 
     @Test
     public void fusioReturnsTargetObject() throws Exception {
-        final SimpleNamingTargetData target = SimpleNamingTargetData.empty();
-        assertThat(processor.process(SimpleNamingOriginData.empty(), target)).isSameAs(target);
+        final TargetData target = TargetData.empty();
+        assertThat(processor.process(OriginData.empty(), target)).isSameAs(target);
     }
 
     @Test
     public void fusioReturnsTargetObjectWithFieldValuesOfOriginObject() throws Exception {
-        final SimpleNamingOriginData origin = SimpleNamingOriginData.of("EM", "S");
-        final SimpleNamingTargetData target = SimpleNamingTargetData.empty();
+        final OriginData origin = OriginData.of("EM", "S");
+        final TargetData target = TargetData.empty();
 
-        final SimpleNamingTargetData processedTarget = processor.process(origin, target);
+        final TargetData processedTarget = processor.process(origin, target);
         validateProcessing(origin, processedTarget);
     }
 
     @Test
     public void fusioReturnsTargetObjectWithOverwrittenFieldValuesOfOriginObject() throws Exception {
-        final SimpleNamingOriginData origin = SimpleNamingOriginData.of("CN", "200");
-        final SimpleNamingTargetData target = SimpleNamingTargetData.of("RV", "SHP");
+        final OriginData origin = OriginData.of("CN", "200");
+        final TargetData target = TargetData.of("RV", "SHP");
 
-        final SimpleNamingTargetData processedTarget = processor.process(origin, target);
+        final TargetData processedTarget = processor.process(origin, target);
         validateProcessing(origin, processedTarget);
 
     }
 
     @Override
-    protected void validateProcessing(final SimpleNamingOriginData origin, final SimpleNamingTargetData processedTarget) {
+    protected void validateProcessing(final OriginData origin, final TargetData processedTarget) {
         assertThat(processedTarget.getMailSubClass()).isNotNull().isEqualTo(origin.getItemSubClass());
         assertThat(processedTarget.getCategory()).isNotNull().isEqualTo(origin.getItemCategory());
     }

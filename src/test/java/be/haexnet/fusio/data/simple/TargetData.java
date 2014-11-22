@@ -2,29 +2,29 @@ package be.haexnet.fusio.data.simple;
 
 import java.math.BigDecimal;
 
-public class SimpleTargetData {
+public class TargetData {
 
     private String name;
     private BigDecimal salary;
     private int age;
     private String occupation;
 
-    private SimpleTargetData() {
+    private TargetData() {
     }
 
-    private SimpleTargetData(final String name, final BigDecimal salary, final int age, final String occupation) {
+    private TargetData(final String name, final BigDecimal salary, final int age, final String occupation) {
         this.name = name;
         this.salary = salary;
         this.age = age;
         this.occupation = occupation;
     }
 
-    public static SimpleTargetData empty() {
-        return new SimpleTargetData();
+    public static TargetData empty() {
+        return new TargetData();
     }
 
-    public static SimpleTargetData of(final String name, final BigDecimal salary, final int age, final String occupation) {
-         return new SimpleTargetData(name, salary, age, occupation);
+    public static TargetData of(final String name, final BigDecimal salary, final int age, final String occupation) {
+         return new TargetData(name, salary, age, occupation);
     }
 
     public String getName() {

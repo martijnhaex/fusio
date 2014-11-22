@@ -8,7 +8,9 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 public class FusioProcessor<O, T> {
 
@@ -36,13 +38,38 @@ public class FusioProcessor<O, T> {
         }
     }
 
-    private void processEmbeddeds(final O entity, final T target) throws NoSuchFieldException {
+    private void processEmbeddeds(final Object entity, final Object target) throws NoSuchFieldException, NoSuchMethodException {
         for (final Field originField : getAnnotatedFieldsOf(entity, FusioEmbedded.class)) {
             final Object embeddedElement = getFieldValue(entity, originField);
 
             if (embeddedElement != null) {
-                processFields(embeddedElement, target);
+                if (embbededDecoupling(originField)) {
+                    processFields(embeddedElement, target);
+                } else {
+                    final Field targetField = getFieldByFieldName(target, originField.getName());
+
+                    Object targetEmbeddedElement = getFieldValue(target, targetField);
+                    if (targetEmbeddedElement == null) {
+                        targetEmbeddedElement = createNewInstanceOfEmbedded(targetField);
+                        setFieldValue(target, targetField, targetEmbeddedElement);
+                    }
+                    processFields(embeddedElement, targetEmbeddedElement);
+                }
             }
+        }
+    }
+
+    private Object createNewInstanceOfEmbedded(final Field targetField) throws NoSuchMethodException {
+        final Constructor<?> defaultConstructor = targetField.getType().getDeclaredConstructor();
+        final boolean accessible = defaultConstructor.isAccessible();
+        defaultConstructor.setAccessible(true);
+        try {
+            return defaultConstructor.newInstance();
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            defaultConstructor.setAccessible(accessible);
         }
     }
 
@@ -62,11 +89,15 @@ public class FusioProcessor<O, T> {
         return field.getAnnotation(FusioField.class).nullable();
     }
 
+    private boolean embbededDecoupling(final Field field) {
+        return field.getAnnotation(FusioEmbedded.class).decoupling();
+    }
+
     private Field[] getDeclaredFieldsOf(final Object entity) {
         return entity.getClass().getDeclaredFields();
     }
 
-    private Predicate<Field> isAnnotatedWith(final Class<? extends Annotation>  annotation) {
+    private Predicate<Field> isAnnotatedWith(final Class<? extends Annotation> annotation) {
         return new Predicate<Field>() {
             @Override
             public boolean apply(final Field field) {
