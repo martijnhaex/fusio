@@ -56,6 +56,9 @@ public class FusioProcessor<O, T> {
                     }
                     processFields(embeddedElement, targetEmbeddedElement);
                 }
+            } else if (fuseIfNullableEmbbed(originField)) {
+                final String fieldName = getEmbbededFieldName(originField);
+                setFieldValue(target, getFieldByFieldName(target, fieldName), null);
             }
         }
     }
@@ -94,6 +97,8 @@ public class FusioProcessor<O, T> {
     private boolean fuseIfNullable(final Field field) {
         return field.getAnnotation(FusioField.class).nullable();
     }
+
+    private boolean fuseIfNullableEmbbed(final Field field) { return field.getAnnotation(FusioEmbedded.class).nullable(); }
 
     private boolean embbededDecoupling(final Field field) {
         return field.getAnnotation(FusioEmbedded.class).decoupling();

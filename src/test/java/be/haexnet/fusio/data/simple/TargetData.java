@@ -6,13 +6,13 @@ public class TargetData {
 
     private String name;
     private BigDecimal salary;
-    private int age;
+    private Integer age;
     private String occupation;
 
     private TargetData() {
     }
 
-    private TargetData(final String name, final BigDecimal salary, final int age, final String occupation) {
+    private TargetData(final String name, final BigDecimal salary, final Integer age, final String occupation) {
         this.name = name;
         this.salary = salary;
         this.age = age;
@@ -23,7 +23,7 @@ public class TargetData {
         return new TargetData();
     }
 
-    public static TargetData of(final String name, final BigDecimal salary, final int age, final String occupation) {
+    public static TargetData of(final String name, final BigDecimal salary, final Integer age, final String occupation) {
          return new TargetData(name, salary, age, occupation);
     }
 
@@ -35,7 +35,7 @@ public class TargetData {
         return salary;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 

@@ -17,6 +17,12 @@ public class FusioProcessorSimpleDataTest extends FusioProcessorTest<OriginData,
     }
 
     @Test
+    public void fusioReturnsTargetObjectNotUpdatedBecauseOfNullalbeValues() throws Exception {
+        final TargetData target = TargetData.of("Business Owner", new BigDecimal("60378.79"), 46, "Sanitary");
+        assertThat(processor.process(OriginData.empty(), target)).isSameAs(target);
+    }
+
+    @Test
     public void fusioReturnsTargetObjectWithFieldValuesOfOriginObject() throws Exception {
         final OriginData origin = OriginData.of("Martijn Haex", new BigDecimal("10378.79"), 24, "Java Consultant");
         final TargetData target = TargetData.empty();
