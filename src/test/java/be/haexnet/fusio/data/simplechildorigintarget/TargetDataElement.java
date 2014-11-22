@@ -1,4 +1,4 @@
-package be.haexnet.fusio.data.simplechildorigintargetdata;
+package be.haexnet.fusio.data.simplechildorigintarget;
 
 public class TargetDataElement {
 

@@ -1,4 +1,4 @@
-package be.haexnet.fusio.data.simplechildorigintargetdata;
+package be.haexnet.fusio.data.simplechildorigintarget;
 
 import be.haexnet.fusio.annotation.FusioEmbedded;
 import be.haexnet.fusio.annotation.FusioField;

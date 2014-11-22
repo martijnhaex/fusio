@@ -46,7 +46,8 @@ public class FusioProcessor<O, T> {
                 if (embbededDecoupling(originField)) {
                     processFields(embeddedElement, target);
                 } else {
-                    final Field targetField = getFieldByFieldName(target, originField.getName());
+                    final String fieldName = getEmbbededFieldName(originField);
+                    final Field targetField = getFieldByFieldName(target, fieldName);
 
                     Object targetEmbeddedElement = getFieldValue(target, targetField);
                     if (targetEmbeddedElement == null) {
@@ -82,6 +83,11 @@ public class FusioProcessor<O, T> {
 
     private String getFieldName(final Field field) {
         final String overwrittenFieldName = field.getAnnotation(FusioField.class).name();
+        return StringUtils.isNotBlank(overwrittenFieldName) ? overwrittenFieldName : field.getName();
+    }
+
+    private String getEmbbededFieldName(final Field field) {
+        final String overwrittenFieldName = field.getAnnotation(FusioEmbedded.class).name();
         return StringUtils.isNotBlank(overwrittenFieldName) ? overwrittenFieldName : field.getName();
     }
 
