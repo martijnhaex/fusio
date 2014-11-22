@@ -13,11 +13,14 @@ public class FusioProcessor<O, T> {
     public T process(final O origin, final T target) {
         try {
             for (final Field originField : getAnnotatedFieldsOf(origin)) {
-                final String fieldName = getFieldName(originField);
                 final Object originValue = getFieldValue(origin, originField);
-                final Field targetField = getFieldByFieldName(target, fieldName);
 
-                setFieldValue(target, targetField, originValue);
+                if (fuseIfNullable(originField) || originValue != null) {
+                    final String fieldName = getFieldName(originField);
+                    final Field targetField = getFieldByFieldName(target, fieldName);
+
+                    setFieldValue(target, targetField, originValue);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -36,6 +39,10 @@ public class FusioProcessor<O, T> {
     private String getFieldName(final Field field) {
         final String overwrittenFieldName = field.getAnnotation(FusioField.class).name();
         return StringUtils.isNotBlank(overwrittenFieldName) ? overwrittenFieldName : field.getName();
+    }
+
+    private boolean fuseIfNullable(final Field field) {
+        return field.getAnnotation(FusioField.class).nullable();
     }
 
     private Field[] getDeclaredFieldsOf(final O entity) {

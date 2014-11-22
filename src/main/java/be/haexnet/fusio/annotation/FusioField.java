@@ -11,4 +11,6 @@ public @interface FusioField {
 
     String name() default "";
 
+    boolean nullable() default false;
+
 }

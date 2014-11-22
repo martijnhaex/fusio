@@ -32,7 +32,6 @@ public class FusioProcessorSimpleDataTest extends FusioProcessorTest<SimpleOrigi
 
         final SimpleTargetData processedTarget = processor.process(origin, target);
         validateProcessing(origin, processedTarget);
-
     }
 
     @Override
