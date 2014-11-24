@@ -2,6 +2,8 @@ package be.haexnet.fusio.processor;
 
 import be.haexnet.fusio.annotation.FusioEmbedded;
 import be.haexnet.fusio.annotation.FusioField;
+import be.haexnet.fusio.processor.exception.FuserAccessException;
+import be.haexnet.fusio.processor.exception.FuserConfigurationException;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -15,17 +17,12 @@ import java.lang.reflect.InvocationTargetException;
 public class FusioProcessor<O, T> {
 
     public T process(final O origin, final T target) {
-        try {
             processFields(origin, target);
             processEmbeddeds(origin, target);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return target;
+            return target;
     }
 
-    private void processFields(final Object entity, final Object target) throws NoSuchFieldException {
+    private void processFields(final Object entity, final Object target) {
         for (final Field originField : getAnnotatedFieldsOf(entity, FusioField.class)) {
             final Object originValue = getFieldValue(entity, originField);
 
@@ -38,7 +35,7 @@ public class FusioProcessor<O, T> {
         }
     }
 
-    private void processEmbeddeds(final Object entity, final Object target) throws NoSuchFieldException, NoSuchMethodException {
+    private void processEmbeddeds(final Object entity, final Object target) {
         for (final Field originField : getAnnotatedFieldsOf(entity, FusioEmbedded.class)) {
             final Object embeddedElement = getFieldValue(entity, originField);
 
@@ -63,17 +60,25 @@ public class FusioProcessor<O, T> {
         }
     }
 
-    private Object createNewInstanceOfEmbedded(final Field targetField) throws NoSuchMethodException {
-        final Constructor<?> defaultConstructor = targetField.getType().getDeclaredConstructor();
+    private Object createNewInstanceOfEmbedded(final Field targetField) {
+        final Constructor<?> defaultConstructor = getDefaultConstructor(targetField);
         final boolean accessible = defaultConstructor.isAccessible();
         defaultConstructor.setAccessible(true);
         try {
             return defaultConstructor.newInstance();
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new FuserAccessException("Cannot instantiate an embedded instance of: " + targetField.getType());
         } finally {
             defaultConstructor.setAccessible(accessible);
+        }
+    }
+
+    private Constructor<?> getDefaultConstructor(final Field field) {
+        try {
+            return field.getType().getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new FuserAccessException("Cannot get default constructor for: " + field.getType());
         }
     }
 
@@ -98,7 +103,9 @@ public class FusioProcessor<O, T> {
         return field.getAnnotation(FusioField.class).nullable();
     }
 
-    private boolean fuseIfNullableEmbbed(final Field field) { return field.getAnnotation(FusioEmbedded.class).nullable(); }
+    private boolean fuseIfNullableEmbbed(final Field field) {
+        return field.getAnnotation(FusioEmbedded.class).nullable();
+    }
 
     private boolean embbededDecoupling(final Field field) {
         return field.getAnnotation(FusioEmbedded.class).decoupling();
@@ -124,14 +131,18 @@ public class FusioProcessor<O, T> {
             return field.get(entity);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new FuserAccessException("Cannot get value from field: " + field.getName() + " on instance of: " + entity.getClass() + ".");
         } finally {
             field.setAccessible(accessible);
         }
     }
 
-    private Field getFieldByFieldName(final Object entity, final String fieldName) throws NoSuchFieldException {
-        return entity.getClass().getDeclaredField(fieldName);
+    private Field getFieldByFieldName(final Object entity, final String fieldName) {
+        try {
+            return entity.getClass().getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            throw new FuserConfigurationException("Could not find field: " + fieldName + " on instance of: " + entity.getClass() + ".");
+        }
     }
 
     private void setFieldValue(final Object entity, final Field field, final Object value) {
@@ -140,7 +151,7 @@ public class FusioProcessor<O, T> {
         try {
             field.set(entity, value);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new FuserAccessException("Cannot set value: " + value + " to field: " + field.getName() + " on instance of: " + entity.getClass() + ".");
         } finally {
             field.setAccessible(accessible);
         }
