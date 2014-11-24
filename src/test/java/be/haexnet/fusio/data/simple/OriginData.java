@@ -11,14 +11,14 @@ public class OriginData {
     @FusioField
     private BigDecimal salary;
     @FusioField
-    private int age;
+    private Integer age;
     @FusioField
     private String occupation;
 
     private OriginData() {
     }
 
-    private OriginData(final String name, final BigDecimal salary, final int age, final String occupation) {
+    private OriginData(final String name, final BigDecimal salary, final Integer age, final String occupation) {
         this.name = name;
         this.salary = salary;
         this.age = age;
@@ -29,7 +29,7 @@ public class OriginData {
         return new OriginData();
     }
 
-    public static OriginData of(final String name, final BigDecimal salary, final int age, final String occupation) {
+    public static OriginData of(final String name, final BigDecimal salary, final Integer age, final String occupation) {
         return new OriginData(name, salary, age, occupation);
     }
 
@@ -41,7 +41,7 @@ public class OriginData {
         return salary;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 

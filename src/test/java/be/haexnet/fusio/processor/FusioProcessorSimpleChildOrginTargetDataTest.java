@@ -1,9 +1,9 @@
 package be.haexnet.fusio.processor;
 
-import be.haexnet.fusio.data.simplechildorigintargetdata.OriginData;
-import be.haexnet.fusio.data.simplechildorigintargetdata.OriginDataElement;
-import be.haexnet.fusio.data.simplechildorigintargetdata.TargetData;
-import be.haexnet.fusio.data.simplechildorigintargetdata.TargetDataElement;
+import be.haexnet.fusio.data.simplechildorigintarget.OriginData;
+import be.haexnet.fusio.data.simplechildorigintarget.OriginDataElement;
+import be.haexnet.fusio.data.simplechildorigintarget.TargetData;
+import be.haexnet.fusio.data.simplechildorigintarget.TargetDataElement;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;

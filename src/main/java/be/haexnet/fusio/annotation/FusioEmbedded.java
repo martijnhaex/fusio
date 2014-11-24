@@ -11,4 +11,8 @@ public @interface FusioEmbedded {
 
     boolean decoupling() default false;
 
+    String name() default "";
+
+    boolean nullable() default false;
+
 }

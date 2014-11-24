@@ -2,8 +2,9 @@ package be.haexnet.fusio.processor;
 
 import be.haexnet.fusio.annotation.FusioEmbedded;
 import be.haexnet.fusio.annotation.FusioField;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
+import be.haexnet.fusio.processor.exception.FusioAccessException;
+import be.haexnet.fusio.processor.util.AnnotationUtil;
+import be.haexnet.fusio.processor.util.ReflectionUtil;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,17 +16,12 @@ import java.lang.reflect.InvocationTargetException;
 public class FusioProcessor<O, T> {
 
     public T process(final O origin, final T target) {
-        try {
-            processFields(origin, target);
-            processEmbeddeds(origin, target);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        processFields(origin, target);
+        processEmbeddeds(origin, target);
         return target;
     }
 
-    private void processFields(final Object entity, final Object target) throws NoSuchFieldException {
+    private void processFields(final Object entity, final Object target) {
         for (final Field originField : getAnnotatedFieldsOf(entity, FusioField.class)) {
             final Object originValue = getFieldValue(entity, originField);
 
@@ -38,7 +34,7 @@ public class FusioProcessor<O, T> {
         }
     }
 
-    private void processEmbeddeds(final Object entity, final Object target) throws NoSuchFieldException, NoSuchMethodException {
+    private void processEmbeddeds(final Object entity, final Object target) {
         for (final Field originField : getAnnotatedFieldsOf(entity, FusioEmbedded.class)) {
             final Object embeddedElement = getFieldValue(entity, originField);
 
@@ -46,7 +42,8 @@ public class FusioProcessor<O, T> {
                 if (embbededDecoupling(originField)) {
                     processFields(embeddedElement, target);
                 } else {
-                    final Field targetField = getFieldByFieldName(target, originField.getName());
+                    final String fieldName = getEmbbededFieldName(originField);
+                    final Field targetField = getFieldByFieldName(target, fieldName);
 
                     Object targetEmbeddedElement = getFieldValue(target, targetField);
                     if (targetEmbeddedElement == null) {
@@ -55,84 +52,75 @@ public class FusioProcessor<O, T> {
                     }
                     processFields(embeddedElement, targetEmbeddedElement);
                 }
+            } else if (fuseIfNullableEmbbed(originField)) {
+                final String fieldName = getEmbbededFieldName(originField);
+                setFieldValue(target, getFieldByFieldName(target, fieldName), null);
             }
         }
     }
 
-    private Object createNewInstanceOfEmbedded(final Field targetField) throws NoSuchMethodException {
-        final Constructor<?> defaultConstructor = targetField.getType().getDeclaredConstructor();
+    private Object createNewInstanceOfEmbedded(final Field targetField) {
+        final Constructor<?> defaultConstructor = getDefaultConstructor(targetField);
         final boolean accessible = defaultConstructor.isAccessible();
         defaultConstructor.setAccessible(true);
         try {
             return defaultConstructor.newInstance();
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new FusioAccessException("Cannot instantiate an embedded instance of: " + targetField.getType());
         } finally {
             defaultConstructor.setAccessible(accessible);
         }
     }
 
+    private Constructor<?> getDefaultConstructor(final Field field) {
+        return ReflectionUtil.getDefaultConstructor(field);
+    }
+
     private ImmutableList<Field> getAnnotatedFieldsOf(final Object entity, Class<? extends Annotation> annotation) {
-        return FluentIterable
-                .of(getDeclaredFieldsOf(entity))
-                .filter(isAnnotatedWith(annotation))
-                .toList();
+        return AnnotationUtil.getAnnotatedFieldsOf(entity, annotation);
     }
 
     private String getFieldName(final Field field) {
-        final String overwrittenFieldName = field.getAnnotation(FusioField.class).name();
+        final String overwrittenFieldName = getFusioField(field).name();
+        return StringUtils.isNotBlank(overwrittenFieldName) ? overwrittenFieldName : field.getName();
+    }
+
+    private String getEmbbededFieldName(final Field field) {
+        final String overwrittenFieldName = getFusioEmbedded(field).name();
         return StringUtils.isNotBlank(overwrittenFieldName) ? overwrittenFieldName : field.getName();
     }
 
     private boolean fuseIfNullable(final Field field) {
-        return field.getAnnotation(FusioField.class).nullable();
+        return getFusioField(field).nullable();
+    }
+
+    private boolean fuseIfNullableEmbbed(final Field field) {
+        return getFusioEmbedded(field).nullable();
     }
 
     private boolean embbededDecoupling(final Field field) {
-        return field.getAnnotation(FusioEmbedded.class).decoupling();
+        return getFusioEmbedded(field).decoupling();
     }
 
-    private Field[] getDeclaredFieldsOf(final Object entity) {
-        return entity.getClass().getDeclaredFields();
+    private FusioField getFusioField(final Field field) {
+        return (FusioField) AnnotationUtil.getAnnotatedField(field, FusioField.class);
     }
 
-    private Predicate<Field> isAnnotatedWith(final Class<? extends Annotation> annotation) {
-        return new Predicate<Field>() {
-            @Override
-            public boolean apply(final Field field) {
-                return field.isAnnotationPresent(annotation);
-            }
-        };
+    private FusioEmbedded getFusioEmbedded(final Field field) {
+        return (FusioEmbedded) AnnotationUtil.getAnnotatedField(field, FusioEmbedded.class);
     }
 
     private Object getFieldValue(final Object entity, final Field field) {
-        final boolean accessible = field.isAccessible();
-        field.setAccessible(true);
-        try {
-            return field.get(entity);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            field.setAccessible(accessible);
-        }
+        return ReflectionUtil.getFieldValue(entity, field);
     }
 
-    private Field getFieldByFieldName(final Object entity, final String fieldName) throws NoSuchFieldException {
-        return entity.getClass().getDeclaredField(fieldName);
+    private Field getFieldByFieldName(final Object entity, final String fieldName) {
+        return ReflectionUtil.getFieldByFieldName(entity, fieldName);
     }
 
     private void setFieldValue(final Object entity, final Field field, final Object value) {
-        final boolean accessible = field.isAccessible();
-        field.setAccessible(true);
-        try {
-            field.set(entity, value);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } finally {
-            field.setAccessible(accessible);
-        }
+        ReflectionUtil.setFieldValue(entity, field, value);
     }
 
 }

@@ -1,4 +1,4 @@
-package be.haexnet.fusio.data.simplechildorigindata;
+package be.haexnet.fusio.data.simplechildorigin;
 
 public class TargetData {
 
