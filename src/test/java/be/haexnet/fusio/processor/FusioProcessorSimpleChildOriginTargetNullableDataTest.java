@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class FusioProcessorSimplChildOriginTargetNullableDataTest extends FusioProcessorTest<OriginData, TargetData> {
+public class FusioProcessorSimpleChildOriginTargetNullableDataTest extends FusioProcessorTest<OriginData, TargetData> {
 
     @Test
     public void fusioReturnsTargetObjectWithFieldValuesOfOriginObjectWhenNull() throws Exception {
