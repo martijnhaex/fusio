@@ -14,6 +14,8 @@
         <org.apache.commons.version>3.3.2</org.apache.commons.version>
         <org.easytesting.version>2.0M10</org.easytesting.version>
         <org.mockito.version>1.10.8</org.mockito.version>
+        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
