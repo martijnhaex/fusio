@@ -2,8 +2,8 @@ package be.haexnet.fusio.processor;
 
 import be.haexnet.fusio.annotation.FusioEmbedded;
 import be.haexnet.fusio.annotation.FusioField;
-import be.haexnet.fusio.processor.exception.FuserAccessException;
-import be.haexnet.fusio.processor.exception.FuserConfigurationException;
+import be.haexnet.fusio.processor.exception.FusioAccessException;
+import be.haexnet.fusio.processor.exception.FusioConfigurationException;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -17,9 +17,9 @@ import java.lang.reflect.InvocationTargetException;
 public class FusioProcessor<O, T> {
 
     public T process(final O origin, final T target) {
-            processFields(origin, target);
-            processEmbeddeds(origin, target);
-            return target;
+        processFields(origin, target);
+        processEmbeddeds(origin, target);
+        return target;
     }
 
     private void processFields(final Object entity, final Object target) {
@@ -68,7 +68,7 @@ public class FusioProcessor<O, T> {
             return defaultConstructor.newInstance();
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
-            throw new FuserAccessException("Cannot instantiate an embedded instance of: " + targetField.getType());
+            throw new FusioAccessException("Cannot instantiate an embedded instance of: " + targetField.getType());
         } finally {
             defaultConstructor.setAccessible(accessible);
         }
@@ -78,7 +78,7 @@ public class FusioProcessor<O, T> {
         try {
             return field.getType().getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
-            throw new FuserAccessException("Cannot get default constructor for: " + field.getType());
+            throw new FusioAccessException("Cannot get default constructor for: " + field.getType());
         }
     }
 
@@ -131,7 +131,7 @@ public class FusioProcessor<O, T> {
             return field.get(entity);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            throw new FuserAccessException("Cannot get value from field: " + field.getName() + " on instance of: " + entity.getClass() + ".");
+            throw new FusioAccessException("Cannot get value from field: " + field.getName() + " on instance of: " + entity.getClass() + ".");
         } finally {
             field.setAccessible(accessible);
         }
@@ -141,7 +141,7 @@ public class FusioProcessor<O, T> {
         try {
             return entity.getClass().getDeclaredField(fieldName);
         } catch (NoSuchFieldException e) {
-            throw new FuserConfigurationException("Could not find field: " + fieldName + " on instance of: " + entity.getClass() + ".");
+            throw new FusioConfigurationException("Could not find field: " + fieldName + " on instance of: " + entity.getClass() + ".");
         }
     }
 
@@ -151,7 +151,7 @@ public class FusioProcessor<O, T> {
         try {
             field.set(entity, value);
         } catch (IllegalAccessException e) {
-            throw new FuserAccessException("Cannot set value: " + value + " to field: " + field.getName() + " on instance of: " + entity.getClass() + ".");
+            throw new FusioAccessException("Cannot set value: " + value + " to field: " + field.getName() + " on instance of: " + entity.getClass() + ".");
         } finally {
             field.setAccessible(accessible);
         }
